@@ -1,29 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>TrackMe - Sender</title>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-</head>
-<body style="text-align:center; background:#000; color:#fff; font-family:Arial; padding-top:100px;">
-    <h1>📡 Live Tracking ON</h1>
-    <p id="out">लोकेशन शोधत आहे...</p>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "तुझा_API_KEY", // Project Settings मध्ये मिळेल
-            databaseURL: "https://trackme-75509-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "trackme-75509",
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        navigator.geolocation.watchPosition((p) => {
-            const lat = p.coords.latitude;
-            const lon = p.coords.longitude;
-            db.ref('mylocation/').set({ lat, lon, t: Date.now() });
-            document.getElementById('out').innerText = "Location Updated: " + lat + ", " + lon;
-        }, (e) => console.log(e), { enableHighAccuracy: true });
-    </script>
-</body>
-</html>
+// watchPosition मुळे तुझे लोकेशन हलले की तो लगेच पकडतो
+navigator.geolocation.watchPosition((position) => {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    
+    // डेटाबेसमध्ये सतत अपडेट करणे
+    database.ref('mylocation/').set({
+        lat: lat,
+        lon: lon,
+        timestamp: Date.now()
+    });
+    
+    document.getElementById('status').innerText = "Tracking: " + lat + ", " + lon;
+}, (err) => {
+    console.error(err);
+}, {
+    enableHighAccuracy: true, // एकदम एक्झॅक्ट लोकेशनसाठी
+    maximumAge: 0,
+    timeout: 5000
+});
