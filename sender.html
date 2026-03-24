@@ -1,20 +1,49 @@
-// watchPosition मुळे तुझे लोकेशन हलले की तो लगेच पकडतो
-navigator.geolocation.watchPosition((position) => {
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-    
-    // डेटाबेसमध्ये सतत अपडेट करणे
-    database.ref('mylocation/').set({
-        lat: lat,
-        lon: lon,
-        timestamp: Date.now()
-    });
-    
-    document.getElementById('status').innerText = "Tracking: " + lat + ", " + lon;
-}, (err) => {
-    console.error(err);
-}, {
-    enableHighAccuracy: true, // एकदम एक्झॅक्ट लोकेशनसाठी
-    maximumAge: 0,
-    timeout: 5000
-});
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Me - Sender</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+</head>
+<body style="text-align:center; background:#121212; color:white; font-family: sans-serif; padding-top:50px;">
+    <h1>📡 Live Tracking: ON</h1>
+    <p id="status" style="font-size:20px; color:#00ff00;">लोकेशन शोधत आहे...</p>
+
+    <script>
+        // तुझे Config डिटेल्स
+        const firebaseConfig = {
+            apiKey: "तुझा_API_KEY_इथे_टाक", 
+            databaseURL: "https://trackme-75509-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "trackme-75509",
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // LIVE MOVING साठी watchPosition वापरत आहोत
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition((position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                // डेटाबेसमध्ये लोकेशन पाठवणे
+                database.ref('mylocation/').set({
+                    lat: lat,
+                    lon: lon,
+                    time: Date.now()
+                });
+                
+                document.getElementById('status').innerText = "तुमचे लोकेशन अपडेट होत आहे: " + lat.toFixed(4) + ", " + lon.toFixed(4);
+            }, (err) => {
+                document.getElementById('status').innerText = "एरर: कृपया लोकेशन परमिशन द्या!";
+                console.error(err);
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 5000
+            });
+        } else {
+            alert("तुमचा ब्राउझर लोकेशन सपोर्ट करत नाही.");
+        }
+    </script>
+</body>
+</html>
