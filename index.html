@@ -1,35 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Track Me Live Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-    <style> #map { height: 100vh; width: 100%; margin:0; } </style>
-</head>
-<body>
-    <div id="map"></div>
-    <script>
-        const firebaseConfig = {
-            apiKey: "तुझा_API_KEY", 
-            databaseURL: "https://trackme-75509-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "trackme-75509",
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        const map = L.map('map').setView([20, 78], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        const marker = L.marker([0, 0]).addTo(map).bindPopup("प्रितम इथे आहे!").openPopup();
-
-        firebase.database().ref('mylocation/').on('value', (s) => {
-            const d = s.val();
-            if(d) {
-                marker.setLatLng([d.lat, d.lon]);
-                map.panTo([d.lat, d.lon]);
-                if(map.getZoom() < 10) map.setZoom(15);
-            }
-        });
-    </script>
-</body>
-</html>
+// डेटाबेसमधून डेटा येताच मार्कर हलवणे
+database.ref('mylocation/').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+        const newPos = [data.lat, data.lon];
+        
+        // मार्करची जागा बदलणे (Live Moving)
+        marker.setLatLng(newPos);
+        
+        // जर तुला नकाशा सुद्धा तुझ्या सोबत हलवायचा असेल तर:
+        map.panTo(newPos); 
+    }
+});
